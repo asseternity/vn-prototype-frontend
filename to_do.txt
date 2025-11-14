@@ -1,0 +1,6 @@
+[v] create a local Docker / PostgreSQL / Prisma / Node / TS backend
+[v] connect local frontend to local backend while they're running from my PC
+[_] push both to gh
+[_] story object interface for use in both FE and BE
+[_] roadwarden ui
+[_] views on backend to write story objects
