@@ -1,6 +1,9 @@
 [v] create a local Docker / PostgreSQL / Prisma / Node / TS backend
 [v] connect local frontend to local backend while they're running from my PC
-[_] push both to gh
+[v] push both to gh
+[v] ui - https://www.gameuidatabase.com/uploads/Bridge-Constructor-The-Walking-Dead07242021-103945-71130.jpg
+[v] connect ui components with a story object
 [_] story object interface for use in both FE and BE
-[_] roadwarden ui
-[_] views on backend to write story objects
+[_] how to assign portraits between frontend and backend
+[_] backend to ship story objects
+[_] views on backend to easily write story objects 
