@@ -4,8 +4,8 @@ type BackgroundProps = {
 
 export default function Background({ imgPath }: BackgroundProps) {
   return (
-    <div>
-      <img src={imgPath} className="w-full h-200 object-cover" />
+    <div className="w-full h-full">
+      <img src={imgPath} className="w-full h-full object-cover" />
     </div>
   );
 }

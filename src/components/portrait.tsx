@@ -13,14 +13,15 @@ export default function Portrait({
     <img
       src={spritePath}
       className={`
-        h-full absolute ${className}
-        transition-transform transition-shadow duration-300 ease-out
-        ${
-          active
-            ? 'scale-110 drop-shadow-[0_0_20px_rgba(255,255,255,0.7)]'
-            : 'scale-100 drop-shadow-none opacity-80'
-        }
-      `}
+    absolute ${className}
+    transition-transform transition-shadow duration-300 ease-out
+    ${
+      active
+        ? 'scale-105 md:scale-110 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]'
+        : 'opacity-80'
+    }
+    h-[70vh] sm:h-[70vh] md:h-[80vh] lg:h-[90vh]
+  `}
     />
   );
 }

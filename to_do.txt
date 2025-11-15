@@ -4,9 +4,9 @@
 [v] ui - https://www.gameuidatabase.com/uploads/Bridge-Constructor-The-Walking-Dead07242021-103945-71130.jpg
 [v] connect ui components with a story object
 [v] read, understand the logic of and fix portrait ordering
-[_] fullscreen height and width
+[v] fullscreen height and width
+[v] responsive on mobile
 [_] no jittery switches
-[_] responsive on mobile
 [_] story object interface for use in both FE and BE
 [_] how to assign portraits between frontend and backend
 [_] backend to ship story objects

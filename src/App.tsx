@@ -404,15 +404,29 @@ function App() {
   };
 
   return (
-    <div>
-      <h1>Backend says: {data?.message || 'nothing yet'}</h1>
+    <div className="h-full w-full">
+      <h1 className="absolute z-10 text-white p-5">
+        Backend says: {data?.message || 'nothing yet'}
+      </h1>
       <div className="relative w-full h-full">
         <Background imgPath={bg_test} />
         {visiblePortraits.map((char, i) => (
           <Portrait
             key={char.id}
             spritePath={char.portrait}
-            className={i === 0 ? 'left-50 bottom-0' : 'right-50 bottom-0'}
+            className={
+              i === 0
+                ? `
+      bottom-0
+      left-1/2 -translate-x-1/2
+      -ml-[20vw] sm:-ml-[15vw] md:-ml-[12vw] lg:-ml-[10vw]
+    `
+                : `
+      bottom-0
+      left-1/2 -translate-x-1/2
+      ml-[20vw] sm:ml-[15vw] md:ml-[12vw] lg:ml-[10vw]
+    `
+            }
             active={char.current_speaker}
           />
         ))}
