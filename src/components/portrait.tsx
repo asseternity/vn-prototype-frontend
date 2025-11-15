@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion';
+
 type PortraitProps = {
   spritePath: string;
   className: string;
@@ -10,7 +12,7 @@ export default function Portrait({
   active,
 }: PortraitProps) {
   return (
-    <img
+    <motion.img
       src={spritePath}
       className={`
     absolute ${className}
@@ -22,6 +24,17 @@ export default function Portrait({
     }
     h-[70vh] sm:h-[70vh] md:h-[80vh] lg:h-[90vh]
   `}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{
+        opacity: 1,
+        y: 0,
+        scale: active ? 1.1 : 1,
+        filter: active
+          ? 'drop-shadow(0px 0px 15px rgba(255,255,255,0.5))'
+          : 'brightness(0.8)',
+      }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
     />
   );
 }

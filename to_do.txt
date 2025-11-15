@@ -6,7 +6,7 @@
 [v] read, understand the logic of and fix portrait ordering
 [v] fullscreen height and width
 [v] responsive on mobile
-[_] no jittery switches
+[v] no jittery switches
 [_] story object interface for use in both FE and BE
 [_] how to assign portraits between frontend and backend
 [_] backend to ship story objects
