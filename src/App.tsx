@@ -6,7 +6,7 @@ import { AnimatePresence } from 'framer-motion';
 import Background from './components/background';
 import DialogueBox from './components/dialogue_box';
 import Portrait from './components/portrait';
-import { VNScript, Character } from './lib/vn_objects';
+import { Character } from './lib/vn_objects';
 
 // assets
 import bg_test from '/bg_test.jpg';

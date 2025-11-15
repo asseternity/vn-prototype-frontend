@@ -7,7 +7,29 @@
 [v] fullscreen height and width
 [v] responsive on mobile
 [v] no jittery switches
-[_] story object interface for use in both FE and BE
-[_] how to assign portraits between frontend and backend
-[_] backend to ship story objects
-[_] views on backend to easily write story objects 
+[v] decide on a data structure to use in both FE and BE
+- Player class that holds an empty array of booleans and every stat as public field
+- Script inits a this.Player instance in constructor
+- Lines are an array of nodes: line, choice, split.
+Script walks forward through nodes and returns a chain of sequential lines until it hits a choice or split node.
+o choice node:
+    - Each choice option updates player stats.
+    - Script auto-creates a boolean per choice (e.g. chose_X = true).
+    - Each choice leads to a new chain start index.
+o split node:
+    - Checks player booleans/stats.
+    - Picks the correct next index.
+    - Ends the current chain.
+    - FE sends user choices to BE; BE handles all state updates and next-node logic.
+    - FE never predicts story flow; BE computes next chain every time.
+[v] create the data structure in the backend
+[_] create the script logic on the backend routes to ship story objects
+[_] ship the data structure to the frontend
+[_] FE: use the data structure to:
+- init choices
+- init player stats and booleans
+- init split
+[_] how to assign portraits between frontend and backend?
+[_] how to assign background changes between frontend and backend?
+[_] create views on backend to easily write story objects 
+[_] init entering player name
