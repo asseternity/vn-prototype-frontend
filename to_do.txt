@@ -23,12 +23,18 @@ o split node:
     - FE sends user choices to BE; BE handles all state updates and next-node logic.
     - FE never predicts story flow; BE computes next chain every time.
 [v] create the data structure in the backend
-[_] create the script logic on the backend routes to ship story objects
+
+[_] for now, mock the login by a single button on frontend + just one user on backend
+[_] post routes on backend: frontend sends user + backend updates story state and ships objects
 [_] ship the data structure to the frontend
+
 [_] FE: use the data structure to:
 - init choices
 - init player stats and booleans
 - init split
+
+[_] logging in / signing up --- your story state will be saved on your account on the backend!
+
 [_] how to assign portraits between frontend and backend?
 [_] how to assign background changes between frontend and backend?
 [_] create views on backend to easily write story objects 
