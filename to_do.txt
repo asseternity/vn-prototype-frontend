@@ -24,9 +24,9 @@ o split node:
     - FE never predicts story flow; BE computes next chain every time.
 [v] create the data structure in the backend
 
-[_] for now, mock the login by a single button on frontend + just one user on backend
+[v] for now, mock the login by a single button on frontend + just one user on backend
 [_] post routes on backend: frontend sends user + backend updates story state and ships objects
-[_] ship the data structure to the frontend
+[_] ship the data structure to the frontend, set data types
 
 [_] FE: use the data structure to:
 - init choices
