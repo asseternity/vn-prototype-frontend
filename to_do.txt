@@ -25,15 +25,26 @@ o split node:
 [v] create the data structure in the backend
 
 [v] for now, mock the login by a single button on frontend + just one user on backend
-[_] post routes on backend: frontend sends user + backend updates story state and ships objects
-[_] ship the data structure to the frontend, set data types
 
-[_] FE: use the data structure to:
-- init choices
-- init player stats and booleans
-- init split
+// frontend:
+// - shows line nodes, line by line, as the player clicks
+// - shows choices
+// - sends which choice was made
 
-[_] logging in / signing up --- your story state will be saved on your account on the backend!
+// backend:
+// - sends line nodes holds the "player" object
+// - updates the player object on the DB based on choice made
+// - sends choices
+// - sends the next line node based on choice made or split node condition
+
+[v] write a master document with types that both will share, namely lines and nodes and Character (minus lastSpokeIndex)
+[_] finish backend and frontend simultaneously:
+[_] player is a psql table
+[_] remove the temporary data_structures file and instead write contained middleware without side effects
+[_] lastSpokeIndex is a frontend function
+[_] Script class is not a thing anywhere
+[_] remove the temporary vn_objects and vn_script files
+[_] logging in / signing up
 
 [_] how to assign portraits between frontend and backend?
 [_] how to assign background changes between frontend and backend?
