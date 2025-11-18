@@ -37,14 +37,25 @@ o split node:
 // - sends choices
 // - sends the next line node based on choice made or split node condition
 
+- finish backend and frontend simultaneously:
+
 [v] write a master document with types that both will share, namely lines and nodes and Character (minus lastSpokeIndex)
-[_] finish backend and frontend simultaneously:
-[_] player is a psql table
-[_] remove the temporary data_structures file and instead write contained middleware without side effects
-[_] lastSpokeIndex is a frontend function
-[_] Script class is not a thing anywhere
-[_] remove the temporary vn_objects and vn_script files
-[_] logging in / signing up
+[v] player is a psql table
+[v] test script module on the backend
+[v] remove the temporary data_structures file and instead write contained middleware without side effects
+[v] Script and Player classes are not a thing anywhere
+[v] backend postSendLineChainNode(LineChainNode ID), postChoice(ChoiceNode ID, choiceOptionIndex), postSplit(SplitNode ID)
+[v] remove the temporary vn_objects and vn_script files
+[v] flipLine is on the frontend
+[v] write frontend receipts
+[v] grab two of the last speakers and put them in Portraits
+
+[_] connect frontend and backend
+[_] to do: edit player object in db in post choice in db 
+[_] to do: check stats in DB against split node's requirement and find the next line chain node; for now it just returns true node
+[_] to do: special node that clears portraits
+[_] to do: logging in / signing up
+[_] to do: frontend and backend validation / clean up
 
 [_] how to assign portraits between frontend and backend?
 [_] how to assign background changes between frontend and backend?

@@ -1,5 +1,17 @@
+// frontend:
+// - shows line nodes, line by line, as the player clicks
+// - shows choices
+// - sends which choice was made
+
+// backend:
+// - sends line nodes
+// - holds the player object in DB
+// - updates the player object on the DB based on choice made
+// - sends choices
+// - sends the next line node based on choice made or split node condition
+
 export type Line = {
-  speakerId: string | null;
+  speakerId: string;
   text: string;
 };
 

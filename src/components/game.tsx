@@ -6,88 +6,118 @@ import { AnimatePresence } from 'framer-motion';
 import Background from '../components/background';
 import DialogueBox from '../components/dialogue_box';
 import Portrait from '../components/portrait';
-import { Character } from '../lib/vn_objects';
+import { getCharacter } from '@/lib/get_character';
 
 // assets
 import bg_test from '/bg_test.jpg';
-import { script } from '../lib/vn_script';
 
 // types
-import type { VNLine } from '../lib/vn_objects';
-type TestResponse = {
-  message: string;
+import type {
+  Line,
+  LineChainNode,
+  ChoiceNode,
+  SplitNode,
+  Node,
+  Character,
+} from '../lib/master_types';
+
+type CharacterRecency = {
+  char: Character;
+  clicksago: number;
 };
 
 type GameProps = {
   username: string;
 };
 
-const firstLine = script.flipLine();
+// testing story nodes
+const line_chain_node_test: LineChainNode = {
+  id: 'test-1',
+  type: 'line',
+  lines: [
+    {
+      speakerId: 'narrator',
+      text: 'First day back at Eastbridge High. Same chipped lockers, same flickering lights, same feeling in your stomach.',
+    },
+    {
+      speakerId: 'narrator',
+      text: 'The bell shrieks. Crowds surge toward the cafeteria like it’s a battlefield.',
+    },
+    {
+      speakerId: 'narrator',
+      text: 'Some other third line whatever.',
+    },
+  ],
+  endingNodeId: 'choice-lunch-table',
+};
 
+// game
 function Game({ username }: GameProps) {
-  const [data, setData] = useState<TestResponse | null>(null);
-  const [currentLine, setCurrentLine] = useState<VNLine | null>(firstLine);
+  const [lineChainNode, setLineChainNode] = useState<LineChainNode>(
+    line_chain_node_test!
+  );
+  const [index, setIndex] = useState<number>(0);
+  const [characters, setCharacters] = useState<Character[]>([]);
+  const [characterRecencies, setCharacterRecencies] = useState<
+    CharacterRecency[]
+  >([]);
   const [visiblePortraits, setVisiblePortraits] = useState<Character[]>([]);
 
   useEffect(() => {
-    // will fetch the story from server in the future
-    const fetchTest = async () => {
-      try {
-        const res = await fetch('http://localhost:3000/test');
-        if (!res.ok) throw new Error('backend refuses to cooperate');
-        const json = await res.json();
-        setData(json);
-      } catch (err) {
-        console.error('fetch is having a meltdown:', err);
-      }
-    };
-
-    fetchTest();
-  }, []);
+    // fetch characters on load
+  });
 
   const advance = () => {
-    const next = script.flipLine();
-    if (!next) return;
+    if (index < lineChainNode?.lines.length) {
+      const currentIndex = index;
+      const nextIndex = index + 1;
+      const currentLine = lineChainNode.lines[currentIndex];
+      setIndex(nextIndex);
 
-    setCurrentLine(next);
-
-    setVisiblePortraits((prev) => {
-      // Reset all
-      const updated = prev.map((c) => {
-        c.current_speaker = false;
-        return c;
+      const recency = characterRecencies.find(
+        (c) => c.char.id === currentLine?.speakerId
+      );
+      const char: Character = getCharacter(characters, currentLine.speakerId);
+      if (!recency) {
+        const recency_object = { char: char, clicksago: 0 };
+        characterRecencies.push(recency_object);
+      } else {
+        recency.clicksago++;
+      }
+      // add + 1 to every recency that isn't ours
+      characterRecencies.forEach((r) => {
+        if (r.char.id !== currentLine.speakerId) r.clicksago += 1;
       });
-
-      // Quit if narration
-      if (!next.speaker) return prev;
-
-      // Ensure speaker is visible
-      let nextList = [...updated];
-      if (!updated.some((c) => c.id === next.speaker!.id)) {
-        if (updated.length < 2) {
-          nextList = [...updated, next.speaker!];
-        } else {
-          const [c1, c2] = updated;
-          const c1Last = c1.lastSpokeIndex(script);
-          const c2Last = c2.lastSpokeIndex(script);
-          const replace = c1Last < c2Last ? c1 : c2;
-          nextList = updated.map((c) =>
-            c.id === replace.id ? next.speaker! : c
+      if (visiblePortraits.length < 2) {
+        visiblePortraits.push(char);
+      } else {
+        // find which of the two currently visible characters has the highest clicksago
+        let oldestIndex = 0;
+        let oldestClicks = -1;
+        visiblePortraits.forEach((visibleChar, i) => {
+          const recencyEntry = characterRecencies.find(
+            (r) => r.char.id === visibleChar.id
           );
-        }
+          const clicks = recencyEntry ? recencyEntry.clicksago : 999;
+          if (clicks > oldestClicks) {
+            oldestClicks = clicks;
+            oldestIndex = i;
+          }
+        });
+        // replace exactly that slot with the new speaker (position stays the same)
+        visiblePortraits[oldestIndex] = char;
       }
 
-      // NOW set the active one
-      next.speaker!.current_speaker = true;
-      return nextList;
-    });
+      // Force React to see the change (we mutated the array)
+      setVisiblePortraits([...visiblePortraits]);
+    } else {
+      // handle choice line or split line fetch
+    }
   };
 
   return (
     <div className="h-full w-full">
-      <h1 className="absolute z-10 text-white p-5">
-        Backend says: {data?.message || 'nothing yet'}
-      </h1>
+      <h1 className="absolute z-10 text-white p-5">{username}</h1>
       <div className="relative w-full h-full">
         <Background imgPath={bg_test} />
         <AnimatePresence>
@@ -108,13 +138,15 @@ function Game({ username }: GameProps) {
       ml-[20vw] sm:ml-[15vw] md:ml-[12vw] lg:ml-[10vw]
     `
               }
-              active={char.current_speaker}
+              active={char.id === lineChainNode.lines[index].speakerId}
             />
           ))}
         </AnimatePresence>
         <DialogueBox
-          name={currentLine?.speaker?.name || ''}
-          text={currentLine?.text || '...'}
+          name={
+            getCharacter(characters, lineChainNode.lines[index]?.speakerId).name
+          }
+          text={lineChainNode.lines[index]?.text || '...'}
           onContinue={advance}
         />
       </div>
