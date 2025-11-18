@@ -79,15 +79,18 @@ function Game({ username }: GameProps) {
       );
       const char: Character = getCharacter(characters, currentLine.speakerId);
       if (!recency) {
-        const recency_object = { char: char, clicksago: 0 };
-        characterRecencies.push(recency_object);
+        setCharacterRecencies((prev) => [
+          ...prev,
+          { char: char, clicksago: 0 },
+        ]);
       } else {
-        recency.clicksago++;
+        recency.clicksago = 0;
       }
       // add + 1 to every recency that isn't ours
       characterRecencies.forEach((r) => {
         if (r.char.id !== currentLine.speakerId) r.clicksago += 1;
       });
+      setCharacterRecencies([...characterRecencies]);
       if (visiblePortraits.length < 2) {
         visiblePortraits.push(char);
       } else {
