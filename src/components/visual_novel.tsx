@@ -1,12 +1,13 @@
 // dependencies
 import { useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { Button } from './ui/button';
 
 // components
-import Background from '../components/background';
-import DialogueBox from '../components/dialogue_box';
-import Portrait from '../components/portrait';
-import { getCharacter } from '@/lib/get_character';
+import Background from './visual_novel/background';
+import DialogueBox from './visual_novel/dialogue_box';
+import Portrait from './visual_novel/portrait';
+import { getCharacter } from './visual_novel/get_character';
 
 // assets
 import bg_test from '/bg_test.jpg';
@@ -19,15 +20,15 @@ import type {
   SplitNode,
   Node,
   Character,
-} from '../lib/master_types';
+} from './visual_novel/master_types';
+
+type VisualNovelProps = {
+  callback: Function;
+};
 
 type CharacterRecency = {
   char: Character;
   clicksago: number;
-};
-
-type GameProps = {
-  username: string;
 };
 
 // testing story nodes
@@ -52,7 +53,7 @@ const line_chain_node_test: LineChainNode = {
 };
 
 // game
-function Game({ username }: GameProps) {
+function VisualNovel({ callback }: VisualNovelProps) {
   const [lineChainNode, setLineChainNode] = useState<LineChainNode>(
     line_chain_node_test!
   );
@@ -119,8 +120,8 @@ function Game({ username }: GameProps) {
   };
 
   return (
-    <div className="h-full w-full">
-      <h1 className="absolute z-10 text-white p-5">{username}</h1>
+    <div className="w-full h-full">
+      <Button onClick={() => callback(false)}>OK</Button>
       <div className="relative w-full h-full">
         <Background imgPath={bg_test} />
         <AnimatePresence>
@@ -157,4 +158,4 @@ function Game({ username }: GameProps) {
   );
 }
 
-export default Game;
+export default VisualNovel;

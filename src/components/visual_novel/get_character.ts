@@ -1,4 +1,4 @@
-import type { Character } from '../lib/master_types';
+import type { Character } from './master_types';
 
 export const getCharacter = (
   allCharacters: Character[],
