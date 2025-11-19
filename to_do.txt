@@ -56,6 +56,7 @@ o split node:
 [_] fix the combination!
 [_] new idea: not divinity -> but a party based traveling simulator like wildermyth / roadwarden --- EXCEPT with romances and companions
 [_] so need to add the location of the party and being able to travel
+[_] rework backend to fit new project idea
 
 [_] connect frontend and backend
 [_] to do: edit player object in db in post choice in db 
