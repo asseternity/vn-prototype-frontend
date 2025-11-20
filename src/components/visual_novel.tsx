@@ -1,16 +1,11 @@
 // dependencies
 import { useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { Button } from './ui/button';
 
 // components
-import Background from './visual_novel/background';
 import DialogueBox from './visual_novel/dialogue_box';
 import Portrait from './visual_novel/portrait';
 import { getCharacter } from './visual_novel/get_character';
-
-// assets
-import bg_test from '/bg_test.jpg';
 
 // types
 import type {
@@ -22,108 +17,96 @@ import type {
   Character,
 } from './visual_novel/master_types';
 
-type VisualNovelProps = {
-  callback: Function;
-};
-
 type CharacterRecency = {
   char: Character;
   clicksago: number;
 };
 
-// testing story nodes
-const line_chain_node_test: LineChainNode = {
-  id: 'test-1',
-  type: 'line',
-  lines: [
-    {
-      speakerId: 'narrator',
-      text: 'First day back at Eastbridge High. Same chipped lockers, same flickering lights, same feeling in your stomach.',
-    },
-    {
-      speakerId: 'narrator',
-      text: 'The bell shrieks. Crowds surge toward the cafeteria like it’s a battlefield.',
-    },
-    {
-      speakerId: 'narrator',
-      text: 'Some other third line whatever.',
-    },
-  ],
-  endingNodeId: 'choice-lunch-table',
+type VisualNovelProps = {
+  startingLineChainNode: LineChainNode;
+  bgImagePath: string;
+  allCharacters: Character[];
 };
 
 // game
-function VisualNovel({ callback }: VisualNovelProps) {
+function VisualNovel({
+  startingLineChainNode,
+  bgImagePath,
+  allCharacters,
+}: VisualNovelProps) {
   const [lineChainNode, setLineChainNode] = useState<LineChainNode>(
-    line_chain_node_test!
+    startingLineChainNode
   );
   const [index, setIndex] = useState<number>(0);
-  const [characters, setCharacters] = useState<Character[]>([]);
+  const [characters, setCharacters] = useState<Character[]>(allCharacters);
   const [characterRecencies, setCharacterRecencies] = useState<
     CharacterRecency[]
   >([]);
   const [visiblePortraits, setVisiblePortraits] = useState<Character[]>([]);
 
-  useEffect(() => {
-    // fetch characters on load
-  });
-
   const advance = () => {
-    if (index < lineChainNode?.lines.length) {
-      const currentIndex = index;
-      const nextIndex = index + 1;
-      const currentLine = lineChainNode.lines[currentIndex];
-      setIndex(nextIndex);
+    const currentIndex = index;
 
-      const recency = characterRecencies.find(
-        (c) => c.char.id === currentLine?.speakerId
-      );
-      const char: Character = getCharacter(characters, currentLine.speakerId);
-      if (!recency) {
-        setCharacterRecencies((prev) => [
-          ...prev,
-          { char: char, clicksago: 0 },
-        ]);
-      } else {
-        recency.clicksago = 0;
-      }
-      // add + 1 to every recency that isn't ours
-      characterRecencies.forEach((r) => {
-        if (r.char.id !== currentLine.speakerId) r.clicksago += 1;
+    if (currentIndex < lineChainNode.lines.length) {
+      const nextIndex = currentIndex + 1; // local, reliable, synchronous
+      const nextLine = lineChainNode.lines[nextIndex];
+      const speakerId = nextLine?.speakerId;
+
+      // determine the character for THIS upcoming line
+      const char = getCharacter(characters, speakerId);
+
+      // update recencies
+      let alreadyExists = false;
+      const updatedRecencies = characterRecencies.map((entry) => {
+        if (entry.char.id === speakerId) {
+          alreadyExists = true;
+          return { ...entry, clicksago: 0 };
+        }
+        return { ...entry, clicksago: entry.clicksago + 1 };
       });
-      setCharacterRecencies([...characterRecencies]);
-      if (visiblePortraits.length < 2) {
-        visiblePortraits.push(char);
-      } else {
-        // find which of the two currently visible characters has the highest clicksago
-        let oldestIndex = 0;
-        let oldestClicks = -1;
-        visiblePortraits.forEach((visibleChar, i) => {
-          const recencyEntry = characterRecencies.find(
-            (r) => r.char.id === visibleChar.id
-          );
-          const clicks = recencyEntry ? recencyEntry.clicksago : 999;
-          if (clicks > oldestClicks) {
-            oldestClicks = clicks;
-            oldestIndex = i;
-          }
-        });
-        // replace exactly that slot with the new speaker (position stays the same)
-        visiblePortraits[oldestIndex] = char;
+
+      if (!alreadyExists) {
+        updatedRecencies.push({ char, clicksago: 0 });
       }
 
-      // Force React to see the change (we mutated the array)
-      setVisiblePortraits([...visiblePortraits]);
-    } else {
-      // handle choice line or split line fetch
+      // update portraits based on the *new* speaker we just looked up
+      let updatedVisiblePortraits = [...visiblePortraits];
+
+      if (!updatedVisiblePortraits.some((p) => p.id === char.id)) {
+        if (updatedVisiblePortraits.length < 2) {
+          updatedVisiblePortraits.push(char);
+        } else {
+          const getClicks = (id: string) =>
+            updatedRecencies.find((r) => r.char.id === id)?.clicksago ?? 999;
+
+          const [left, right] = updatedVisiblePortraits;
+          const replaceLeft = getClicks(left.id) > getClicks(right.id);
+
+          if (replaceLeft) {
+            updatedVisiblePortraits[0] = char;
+          } else {
+            updatedVisiblePortraits[1] = char;
+          }
+        }
+      }
+
+      // now safely commit the state updates
+      setIndex(nextIndex);
+      setCharacterRecencies(updatedRecencies);
+      setVisiblePortraits(updatedVisiblePortraits);
+
+      return;
     }
+
+    // handle end of chain
   };
 
   return (
-    <div className="w-full h-full">
-      <Button onClick={() => callback(false)}>OK</Button>
+    <div
+      className="bg-white rounded-xl shadow-xl p-4 w-[600px] h-[400px] bg-cover"
+      style={{ backgroundImage: `url(${bgImagePath})` }}
+    >
       <div className="relative w-full h-full">
-        <Background imgPath={bg_test} />
         <AnimatePresence>
           {visiblePortraits.map((char, i) => (
             <Portrait
@@ -142,13 +125,14 @@ function VisualNovel({ callback }: VisualNovelProps) {
       ml-[20vw] sm:ml-[15vw] md:ml-[12vw] lg:ml-[10vw]
     `
               }
-              active={char.id === lineChainNode.lines[index].speakerId}
+              active={char.id === lineChainNode?.lines[index]?.speakerId}
             />
           ))}
         </AnimatePresence>
         <DialogueBox
           name={
-            getCharacter(characters, lineChainNode.lines[index]?.speakerId).name
+            getCharacter(characters, lineChainNode?.lines[index]?.speakerId)
+              .name
           }
           text={lineChainNode.lines[index]?.text || '...'}
           onContinue={advance}

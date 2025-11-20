@@ -11,6 +11,7 @@ export default function Portrait({
   className,
   active,
 }: PortraitProps) {
+  if (!spritePath) return null;
   return (
     <motion.img
       src={spritePath}
@@ -22,7 +23,7 @@ export default function Portrait({
         ? 'scale-105 md:scale-110 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]'
         : 'opacity-80'
     }
-    h-[70vh] sm:h-[70vh] md:h-[80vh] lg:h-[90vh]
+    max-h-80 bottom-5
   `}
       initial={{ opacity: 0, y: 20 }}
       animate={{

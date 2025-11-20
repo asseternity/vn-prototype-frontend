@@ -30,7 +30,7 @@ function Login({ usernameCallback }: LoginProps) {
           type="text"
           id="username"
           name="username"
-          placeholder="username"
+          placeholder="Username"
           onChange={(e) => {
             setUsername(e.target.value);
           }}

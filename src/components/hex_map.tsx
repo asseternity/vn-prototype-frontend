@@ -5,8 +5,38 @@ import { HexGrid, Layout } from 'react-hexgrid';
 import { Button } from '@/components/ui/button';
 
 // components
-import generateRandomHexMap from './hex_map/map_generator';
+import { generateMap } from './hex_map/tile/map_generator';
+import TileRenderer from './hex_map/tile/tile_renderer.tsx';
 import VisualNovel from './visual_novel';
+
+// test assets
+import type {
+  LineChainNode,
+  Line,
+  Character,
+} from './visual_novel/master_types.ts';
+import bg_test from '/bg_test.jpg';
+import portrait_test_1 from '/portrait_test_1.png';
+import portrait_test_2 from '/portrait_test_2.png';
+import portrait_test_3 from '/portrait_test_3.png';
+const lines_test: Line[] = [
+  { speakerId: 'narrator', text: 'Something something.' },
+  { speakerId: 'johnny', text: 'Hello 1' },
+  { speakerId: 'anne', text: 'Hello 2' },
+  { speakerId: 'mark', text: 'Hello 3' },
+  { speakerId: 'johnny', text: 'Hello 4' },
+];
+const characters_test: Character[] = [
+  { id: 'johnny', name: 'Johnny', portrait: portrait_test_2 },
+  { id: 'anne', name: 'Anne', portrait: portrait_test_1 },
+  { id: 'mark', name: 'Lil Marco', portrait: portrait_test_3 },
+];
+const script_test: LineChainNode = {
+  id: '0',
+  type: 'line',
+  lines: lines_test,
+  endingNodeId: null,
+};
 
 export default function HexMap() {
   const [mapTiles, setMapTiles] = useState<any[]>([]);
@@ -18,12 +48,12 @@ export default function HexMap() {
   const [showEventPopup, setShowEventPopup] = useState(false);
 
   useEffect(() => {
-    if (title == '' || title == 'test' || actionUsedThisTurn) {
+    if (title == '' || actionUsedThisTurn) {
       setButtonsDisabled(true);
     } else {
       setButtonsDisabled(false);
     }
-  }, [actionUsedThisTurn, mapTiles, title, turn]);
+  }, [actionUsedThisTurn, title]);
 
   const endTurn = () => {
     const fifty_fifty = Math.floor(Math.random() * 2);
@@ -42,7 +72,7 @@ export default function HexMap() {
   };
 
   useEffect(() => {
-    generateRandomHexMap(5, 10, 'forests', setInfo).then(setMapTiles);
+    generateMap(5, 10, 'forests').then(setMapTiles);
   }, []);
 
   return (
@@ -77,9 +107,11 @@ export default function HexMap() {
       <div className="flex-1 min-h-0 border-2 flex relative">
         {showEventPopup && (
           <div className="absolute inset-0 flex items-center justify-center z-[99999]">
-            <div className="bg-white rounded-xl shadow-xl p-4 w-[600px] h-[400px]">
-              <VisualNovel callback={setShowEventPopup} />
-            </div>
+            <VisualNovel
+              startingLineChainNode={script_test}
+              allCharacters={characters_test}
+              bgImagePath={bg_test}
+            />
           </div>
         )}
         <UncontrolledReactSVGPanZoom
@@ -111,31 +143,17 @@ export default function HexMap() {
                 y: (window.innerHeight - 170) / 2,
               }}
             >
-              {mapTiles.map(
-                ({
-                  id,
-                  Tile,
-                  coords,
-                  name,
-                  favor,
-                  awareness,
-                  resources,
-                  population,
-                  fillColor,
-                  onClick,
-                }) => {
-                  let all_data = `Favor: ${favor.toString()} | Awareness: ${awareness.toString()} | Resources: ${resources.toString()} | Population: ${population.toString()}`;
-                  return (
-                    <Tile
-                      key={id}
-                      {...coords}
-                      name={name}
-                      fillColor={fillColor}
-                      onClick={() => onClick(name, all_data)}
-                    />
-                  );
-                }
-              )}
+              {mapTiles.map((tile) => {
+                const { id } = tile;
+                let all_data = `Favor: ${tile.favor} | Awareness: ${tile.awareness} | Resources: ${tile.resources} | Population: ${tile.population}`;
+                return (
+                  <TileRenderer
+                    key={id}
+                    tile={tile}
+                    onClick={() => setInfo(tile.name, all_data)}
+                  />
+                );
+              })}
             </Layout>
           </HexGrid>
         </UncontrolledReactSVGPanZoom>

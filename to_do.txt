@@ -53,19 +53,30 @@ o split node:
 [v] is there anything from the fantasy-divinity-backend-v2 project to paste into backend of this game?
 [v] connect frontend from fantasy-divinity-simulator project into here
 [v] replace eventpopup with the visual novel part! in a pretty bordered window
-[_] fix the combination!
-[_] new idea: not divinity -> but a party based traveling simulator like wildermyth / roadwarden --- EXCEPT with romances and companions
+[v] fix the combination!
+[v] restructure the modules of the hex map and tiles
+[v] frontend: raise the node acquisition up to the hex_map stage
+[_] backend: combine nodes into an event, and send all of them at once
+[_] hex map (frontend): fetch event by id
+[_] backend: remove logging in from prisma and backend routes
+[_] frontend: keep player stats in frontend
+[_] backend and frontend: 
+- backend holds all written story events, 
+- frontend holds player stats and procedural assets,
+- game is completely new on each page refresh,
+
+[_] new idea: not divinity -> but a party based traveling simulator like wildermyth / roadwarden --- EXCEPT with romances and companions 
+--- procedurally generated character and relationship focused --- browser based DnD simulator
 [_] so need to add the location of the party and being able to travel
 [_] rework backend to fit new project idea
+
+[_] make map game ui prettier
+[_] make map game ui responsive for mobile
 
 [_] connect frontend and backend
 [_] to do: edit player object in db in post choice in db 
 [_] to do: check stats in DB against split node's requirement and find the next line chain node; for now it just returns true node
 [_] to do: special node that clears portraits
-[_] to do: logging in / signing up
-[_] to do: frontend and backend validation / clean up
-
-[_] expand the fantasy divinity simulation part of the game
 
 [_] how to assign portraits between frontend and backend?
 [_] how to assign background changes between frontend and backend?

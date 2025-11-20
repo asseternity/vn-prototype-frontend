@@ -12,7 +12,7 @@ export default function DialogueBox({
   onContinue,
 }: DialogueBoxProps) {
   return (
-    <div className="absolute bottom-0 w-full bg-black/60 text-white p-3 h-50 flex flex-row justify-between items-start">
+    <div className="absolute bottom-0 w-full bg-black/60 text-white p-3 h-30 flex flex-row justify-between items-start">
       <div>
         <h1 className="text-3xl">{name}</h1>
         <p>{text}</p>
