@@ -71,7 +71,10 @@ frontend:
 [v] int player stats in frontend
 [v] move the party between tiles given action still remaining and it borders our tile
 [v] int party stats in each tile
-[_] procedurally generated towns
+[v] clone dnd witch repo locally
+[_] install c# and make a new dnd witch thing to brush up on c#
+[_] transform castles/temples into procedurally generated towns
+[_] player stats -> party (Character[]) in frontend
 [_] procedurally generated character recruitment
 [_] make map game ui prettier
 [_] make map game ui responsive for mobile
