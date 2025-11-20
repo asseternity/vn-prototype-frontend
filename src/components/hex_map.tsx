@@ -39,22 +39,68 @@ const script_test: LineChainNode = {
 };
 
 export default function HexMap() {
+  // map
   const [mapTiles, setMapTiles] = useState<any[]>([]);
-  const [title, setTitle] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
+
+  // tile clicked on
+  const [selectedTileTitle, setSelectedTileTitle] = useState<string>('');
+  const [selectedTileDescription, setSelectedTileDescription] =
+    useState<string>('');
+  const [selectedTileId, setSelectedTileId] = useState<number | null>(null);
+  const [selectedTileIsNeighbor, setSelectedTileIsNeighbor] = useState<
+    boolean | null
+  >(null);
+
+  // action state and action-related ui
   const [turn, setTurn] = useState<number>(0);
   const [actionUsedThisTurn, setActionUsedThisTurn] = useState<boolean>(false);
   const [buttonsDisabled, setButtonsDisabled] = useState<boolean>(true);
+
+  // visual novel part
   const [showEventPopup, setShowEventPopup] = useState(false);
 
+  // party location
+  const [partyPos, setPartyPos] = useState<{
+    q: number;
+    r: number;
+    s: number;
+  } | null>({ q: 0, r: 0, s: 0 });
+  const [partyPosTileid, setPartyPosTileId] = useState<number | null>(null);
+
+  // player stats
+  const [playerStat1, setPlayerStat1] = useState<number>(0);
+  const [playerStat2, setPlayerStat2] = useState<number>(0);
+  const [playerStat3, setPlayerStat3] = useState<number>(0);
+  const [playerStat4, setPlayerStat4] = useState<number>(0);
+  const [playerStat5, setPlayerStat5] = useState<number>(0);
+
+  // initial map generation
   useEffect(() => {
-    if (title == '' || actionUsedThisTurn) {
+    generateMap(5, 10, 'forests').then(setMapTiles);
+  }, []);
+
+  // find and sync the id of the party's tile
+  const currentTileId =
+    mapTiles.find(
+      (tile) =>
+        partyPos?.q === tile.q &&
+        partyPos?.r === tile.r &&
+        partyPos?.s === tile.s
+    )?.id ?? null;
+  useEffect(() => {
+    setPartyPosTileId(currentTileId);
+  }, [currentTileId]);
+
+  // sync whether actions buttons are enabled or not
+  useEffect(() => {
+    if (selectedTileTitle == '' || actionUsedThisTurn) {
       setButtonsDisabled(true);
     } else {
       setButtonsDisabled(false);
     }
-  }, [actionUsedThisTurn, title]);
+  }, [actionUsedThisTurn, selectedTileTitle]);
 
+  // handler for end turn
   const endTurn = () => {
     const fifty_fifty = Math.floor(Math.random() * 2);
     if (fifty_fifty == 0) {
@@ -66,43 +112,90 @@ export default function HexMap() {
     setTurn(nextTurn);
   };
 
-  const setInfo = (given_title: string, given_description: string) => {
-    setTitle(given_title);
-    setDescription(given_description);
+  // disable movement button if not a neighbor
+  function isNeighbor(tileAId: number, tileBId: number) {
+    const a = mapTiles.find((tile) => tile.id === tileAId);
+    const b = mapTiles.find((tile) => tile.id === tileBId);
+    if (!a || !b) return false;
+    const directions = [
+      { q: 1, r: -1, s: 0 },
+      { q: 1, r: 0, s: -1 },
+      { q: 0, r: 1, s: -1 },
+      { q: -1, r: 1, s: 0 },
+      { q: -1, r: 0, s: 1 },
+      { q: 0, r: -1, s: 1 },
+    ];
+    return directions.some(
+      (dir) => b.q === a.q + dir.q && b.r === a.r + dir.r && b.s === a.s + dir.s
+    );
+  }
+  useEffect(() => {
+    if (!selectedTileId || !partyPosTileid) {
+      setSelectedTileIsNeighbor(false);
+      return;
+    }
+    setSelectedTileIsNeighbor(isNeighbor(selectedTileId, partyPosTileid));
+  }, [selectedTileId, partyPosTileid, mapTiles]);
+
+  // handler for moving
+  const move = () => {
+    const targetTile = mapTiles.find((tile) => selectedTileId === tile.id);
+    setPartyPos({ q: targetTile.q, r: targetTile.r, s: targetTile.s });
   };
 
-  useEffect(() => {
-    generateMap(5, 10, 'forests').then(setMapTiles);
-  }, []);
+  // handler for clicking a tile
+  const setInfo = (
+    given_title: string,
+    given_description: string,
+    given_id: number
+  ) => {
+    setSelectedTileTitle(given_title);
+    setSelectedTileDescription(given_description);
+    setSelectedTileId(given_id);
+  };
 
   return (
     <div className="min-h-dvh flex flex-col">
       <div className="border-2 h-25 flex flex-row gap-5 items-center justify-between text-sm md:text-xl">
-        <h1 className="pl-5">Province: {title}</h1>
+        <h1 className="pl-5">Province: {selectedTileTitle}</h1>
         <p>|</p>
-        <h3>Resources: {description}</h3>
+        <h3>Resources: {selectedTileDescription}</h3>
         <p>|</p>
         <h3>Turn {turn}</h3>
-        <div className="flex flex-col">
-          <Button
-            disabled={buttonsDisabled}
-            onClick={() => setActionUsedThisTurn(true)}
-          >
-            Action 1
-          </Button>
-          <Button
-            disabled={buttonsDisabled}
-            onClick={() => setActionUsedThisTurn(true)}
-          >
-            Action 2
-          </Button>
-          <Button
-            disabled={buttonsDisabled}
-            onClick={() => setActionUsedThisTurn(true)}
-          >
-            Action 3
-          </Button>
-        </div>
+        {selectedTileId === partyPosTileid ? (
+          <div className="flex flex-col">
+            <Button
+              disabled={buttonsDisabled}
+              onClick={() => setActionUsedThisTurn(true)}
+            >
+              Action 1
+            </Button>
+            <Button
+              disabled={buttonsDisabled}
+              onClick={() => setActionUsedThisTurn(true)}
+            >
+              Action 2
+            </Button>
+            <Button
+              disabled={buttonsDisabled}
+              onClick={() => setActionUsedThisTurn(true)}
+            >
+              Action 3
+            </Button>
+          </div>
+        ) : (
+          <div className="flex flex-col">
+            <Button
+              disabled={buttonsDisabled || !selectedTileIsNeighbor}
+              onClick={() => {
+                move();
+                setActionUsedThisTurn(true);
+              }}
+            >
+              Move Here
+            </Button>
+          </div>
+        )}
       </div>
       <div className="flex-1 min-h-0 border-2 flex relative">
         {showEventPopup && (
@@ -150,7 +243,12 @@ export default function HexMap() {
                   <TileRenderer
                     key={id}
                     tile={tile}
-                    onClick={() => setInfo(tile.name, all_data)}
+                    onClick={() => setInfo(tile.name, all_data, tile.id)}
+                    partyHere={
+                      partyPos?.q === tile.q &&
+                      partyPos?.r === tile.r &&
+                      partyPos?.s === tile.s
+                    }
                   />
                 );
               })}

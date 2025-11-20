@@ -56,29 +56,52 @@ o split node:
 [v] fix the combination!
 [v] restructure the modules of the hex map and tiles
 [v] frontend: raise the node acquisition up to the hex_map stage
-[_] backend: combine nodes into an event, and send all of them at once
-[_] hex map (frontend): fetch event by id
-[_] backend: remove logging in from prisma and backend routes
-[_] frontend: keep player stats in frontend
-[_] backend and frontend: 
-- backend holds all written story events, 
-- frontend holds player stats and procedural assets,
-- game is completely new on each page refresh,
 
-[_] new idea: not divinity -> but a party based traveling simulator like wildermyth / roadwarden --- EXCEPT with romances and companions 
---- procedurally generated character and relationship focused --- browser based DnD simulator
-[_] so need to add the location of the party and being able to travel
-[_] rework backend to fit new project idea
+backend:
+[v] remove player stats from DB
+[v] combine nodes into an event (for now, with set characters)
+[v] send events by id (for now, with set characters)
+[v] remove old postLine, postChoice and postSplit routes
 
+frontend:
+[v] store location of the party on a tile
+[v] visualize where the party is
+[v] one action "move here" if you click on a tile where you are currently not
+[v] three actions (TBD) if you click on a tile where you currently are
+[v] int player stats in frontend
+[v] move the party between tiles given action still remaining and it borders our tile
+[_] int party stats in each tile
+[_] procedurally generated towns
+[_] procedurally generated character recruitment
 [_] make map game ui prettier
 [_] make map game ui responsive for mobile
 
-[_] connect frontend and backend
-[_] to do: edit player object in db in post choice in db 
-[_] to do: check stats in DB against split node's requirement and find the next line chain node; for now it just returns true node
-[_] to do: special node that clears portraits
+backend:
+[_] to each event, add a prerequisite in player stats, e.g:
+- a relationship with a certain char being above or below a certain level
+- player's own stat being above or below a certain level
+- party reputation or fame in a certain spot being above or below a certain level 
+- others in the future, like having a certain item, etc.
+[_] no characters in the backend, just archetypes
+[_] characters are inserted into the archetypes depending on the party
 
-[_] how to assign portraits between frontend and backend?
+[_] frontend checks for a chance for an event to occur, if it does, fetch event 
+[_] backend route to check req.player_stats, and give a random event from among eligible
+[_] but not one that you've seen already: frontend keeps a list of req.seen_events
+[_] update player stats as a result of events
+[_] pass the event to VisualNovel
+
+[_] how to assign portraits between frontend and backend given procedural characters?
 [_] how to assign background changes between frontend and backend?
-[_] create views on backend to easily write story objects 
+ 
 [_] init entering player name
+[_] factions: each tile can be controlled by a procedurally generated faction, this colors the tile 
+[_] create views on backend to easily write story objects
+[_] much bigger map
+[_] challenges or missions
+[_] some kind of difficulty increase with the further you get from the center
+[_] some kind of boss or finale at the edge end of the map
+
+[_] auth - login / sign up 
+[_] save game through serialization / deserialization
+[_] frontend and backend form validation and cleaning
