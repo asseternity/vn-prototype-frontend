@@ -70,7 +70,7 @@ frontend:
 [v] three actions (TBD) if you click on a tile where you currently are
 [v] int player stats in frontend
 [v] move the party between tiles given action still remaining and it borders our tile
-[_] int party stats in each tile
+[v] int party stats in each tile
 [_] procedurally generated towns
 [_] procedurally generated character recruitment
 [_] make map game ui prettier
