@@ -1,6 +1,6 @@
 import { TILE_KINDS } from './tile_kinds.ts';
 import { pickRandomFromArray } from './json_pickers.ts';
-import { generateFirstName } from './name_generator.ts';
+import { generateFirstName } from '../../name_generation/generateFirstName.ts';
 
 const rand = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;

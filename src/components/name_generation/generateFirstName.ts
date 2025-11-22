@@ -1,4 +1,4 @@
-export async function generateFirstName(): Promise<string> {
+export function generateFirstName(): string {
   const consonants = 'bcdfghjklmnpqrstvwxyz';
   const vowels = 'aeiou';
 

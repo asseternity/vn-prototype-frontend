@@ -72,8 +72,11 @@ frontend:
 [v] move the party between tiles given action still remaining and it borders our tile
 [v] int party stats in each tile
 [v] clone dnd witch repo locally
-[_] install c# and make a new dnd witch thing to brush up on c#
-[_] transform castles/temples into procedurally generated towns
+[v] install c# and make a new dnd witch thing to brush up on c#
+[v] rework the nation generation to be more of a coherent story --- and to be usable in this game!
+[_] use the bot to:
+- transform castles/temples into procedurally generated towns
+- factions: each tile can be controlled by a procedurally generated faction, this colors the tile 
 [_] player stats -> party (Character[]) in frontend
 [_] procedurally generated character recruitment
 [_] make map game ui prettier
@@ -98,7 +101,6 @@ backend:
 [_] how to assign background changes between frontend and backend?
  
 [_] init entering player name
-[_] factions: each tile can be controlled by a procedurally generated faction, this colors the tile 
 [_] create views on backend to easily write story objects
 [_] much bigger map
 [_] challenges or missions
