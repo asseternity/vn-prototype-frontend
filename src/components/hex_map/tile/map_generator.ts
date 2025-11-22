@@ -49,7 +49,7 @@ export async function generateMap(
             ? '#2e8857'
             : type.baseFill;
 
-      const name = `${await generateFirstName()} ${pickRandomFromArray(
+      const name = `${generateFirstName(2, 8)} ${pickRandomFromArray(
         type.namePool
       )}`;
 

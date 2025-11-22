@@ -11,7 +11,7 @@ export const generateFactionName = (): string => {
     data.first_words[rand(0, data.first_words.length - 1)];
   const second_word: string =
     data.second_words[rand(0, data.second_words.length - 1)];
-  const generated_proper_noun: string = generateFirstName();
+  const generated_proper_noun: string = generateFirstName(2, 8);
   let name = `${prefix} ${first_word} ${second_word}`;
 
   const chance = rand(0, 30);

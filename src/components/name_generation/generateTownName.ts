@@ -7,7 +7,7 @@ const rand = (min: number, max: number) =>
 export const generateTownName = (): string => {
   const suffix: string = data.suffixes[rand(0, data.suffixes.length - 1)];
   const prefix: string = data.prefixes[rand(0, data.prefixes.length - 1)];
-  let name = generateFirstName();
+  let name = generateFirstName(2, 8);
 
   const chance = rand(0, 100);
   if (chance < 50) {

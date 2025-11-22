@@ -1,4 +1,7 @@
-export function generateFirstName(): string {
+const rand = (min: number, max: number) =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
+
+export function generateFirstName(min: number, max: number): string {
   const consonants = 'bcdfghjklmnpqrstvwxyz';
   const vowels = 'aeiou';
 
@@ -17,7 +20,7 @@ export function generateFirstName(): string {
   }
 
   // First name: 2–8 letters
-  const firstNameLength = Math.floor(Math.random() * (8 - 2 + 1)) + 2;
+  const firstNameLength = rand(min, max);
   const firstName = generateRandomString(firstNameLength);
   return firstName;
 }
