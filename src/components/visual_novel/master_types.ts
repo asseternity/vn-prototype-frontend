@@ -1,5 +1,5 @@
 export type Line = {
-  speakerId: string;
+  role: Role;
   text: string;
 };
 
@@ -34,8 +34,16 @@ export type SplitNode = {
 
 export type Node = LineChainNode | ChoiceNode | SplitNode;
 
-export type Character = {
+export type Role = {
   id: string;
-  name: string;
-  portrait: string;
 };
+
+export class Event {
+  id: string;
+  nodes_by_id: Record<string, Node>;
+
+  constructor(id: string, nodes_by_id: Record<string, Node>) {
+    this.id = id;
+    this.nodes_by_id = nodes_by_id;
+  }
+}

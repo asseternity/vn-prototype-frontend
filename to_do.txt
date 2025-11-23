@@ -75,13 +75,27 @@ frontend:
 [v] install c# and make a new dnd witch thing to brush up on c#
 [v] rework the nation generation to be more of a coherent story --- and to be usable in this game!
 [v] procedurally generated portraits
-[_] characters objects with relationships with player and personality types and skill number and portrait path, and not just strings with names 
+[v] characters objects with relationships with player and personality types and skill number and portrait path, and not just strings with names 
 (this will help with Vn part)
-[_] player stats -> party (Character[]) in frontend
+[v] clean up / remove test characters in hexmap
+[v] remove / replace character type in master_types in FE and BE
+[v] delete old test portraits --- clean up FE and BE
+[v] player stats -> party (Character[]) in frontend
+
+[v] change backend for the characters to be insertable
+[v] fix getCharacter and visualNovel
+[v] create player character object instead of raw stats
+[_] push backend to railway
+[_] connect backend to frontend
+[_] fetch event and insert characters
+[_] handle split and choice on frontend
+
+[_] different types of leader / mayoral titles
 [_] procedurally generated character recruitment
 [_] use the bot to:
 - transform castles/temples into procedurally generated towns
 - factions: each tile can be controlled by a procedurally generated faction, this colors the tile 
+
 [_] make map game ui prettier
 [_] make map game ui responsive for mobile
 
@@ -107,6 +121,7 @@ backend:
 [_] create views on backend to easily write story objects
 [_] much bigger map
 [_] challenges or missions
+[_] init classes for characters or something else to make the story more personable / defined and less systems-driven
 [_] some kind of difficulty increase with the further you get from the center
 [_] some kind of boss or finale at the edge end of the map
 

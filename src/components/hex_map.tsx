@@ -5,41 +5,48 @@ import { HexGrid, Layout } from 'react-hexgrid';
 import { Button } from '@/components/ui/button';
 
 // components
-import { generatePortrait } from './portrait_generation/portrait_generator.ts';
 import { generateMap } from './hex_map/tile/map_generator';
 import TileRenderer from './hex_map/tile/tile_renderer.tsx';
 import VisualNovel from './visual_novel';
+import type { Character } from './poi_generation/character_type.ts';
 
-// test assets
-import type {
-  LineChainNode,
-  Line,
-  Character,
-} from './visual_novel/master_types.ts';
-import bg_test from '/bg_test.jpg';
-const portrait_test_1 = generatePortrait(`portrait_test_1`);
-const portrait_test_2 = generatePortrait(`portrait_test_2`);
-const portrait_test_3 = generatePortrait(`portrait_test_3`);
-const lines_test: Line[] = [
-  { speakerId: 'narrator', text: 'Something something.' },
-  { speakerId: 'johnny', text: 'Hello 1' },
-  { speakerId: 'anne', text: 'Hello 2' },
-  { speakerId: 'mark', text: 'Hello 3' },
-  { speakerId: 'johnny', text: 'Hello 4' },
-];
-let characters_test: Character[] = [];
-if (portrait_test_1 && portrait_test_2 && portrait_test_3) {
-  characters_test = [
-    { id: 'johnny', name: 'Johnny', portrait: portrait_test_1 },
-    { id: 'anne', name: 'Anne', portrait: portrait_test_2 },
-    { id: 'mark', name: 'Lil Marco', portrait: portrait_test_3 },
-  ];
-}
-const script_test: LineChainNode = {
-  id: '0',
-  type: 'line',
-  lines: lines_test,
-  endingNodeId: null,
+// test vn
+import bg from '/bg_test.jpg';
+import { generateCharacter } from './poi_generation/character_generator.ts';
+
+const narratorCharacter: Character = {
+  id: 998,
+  name: '',
+  relationship_with_player: 0,
+  strength: 10,
+  dexterity: 10,
+  constitution: 10,
+  intelligence: 10,
+  wisdom: 10,
+  charisma: 10,
+  portrait: '',
+};
+
+const playerCharacter: Character = {
+  id: 999,
+  name: 'Player',
+  relationship_with_player: 0,
+  strength: 10,
+  dexterity: 10,
+  constitution: 10,
+  intelligence: 10,
+  wisdom: 10,
+  charisma: 10,
+  portrait: '',
+};
+
+const roleMap: Record<string, Character> = {
+  narrator: narratorCharacter,
+  player: playerCharacter,
+  '1': generateCharacter(),
+  '2': generateCharacter(),
+  '3': generateCharacter(),
+  '4': generateCharacter(),
 };
 
 export default function HexMap() {
@@ -71,12 +78,9 @@ export default function HexMap() {
   } | null>({ q: 0, r: 0, s: 0 });
   const [partyPosTileid, setPartyPosTileId] = useState<number | null>(null);
 
-  // player stats
-  const [playerStat1, setPlayerStat1] = useState<number>(0);
-  const [playerStat2, setPlayerStat2] = useState<number>(0);
-  const [playerStat3, setPlayerStat3] = useState<number>(0);
-  const [playerStat4, setPlayerStat4] = useState<number>(0);
-  const [playerStat5, setPlayerStat5] = useState<number>(0);
+  // player and party
+  const [player, setPlayer] = useState<Character>(playerCharacter);
+  const [party, setParty] = useState<Character[]>([]);
 
   // initial map generation
   useEffect(() => {
@@ -205,9 +209,9 @@ export default function HexMap() {
         {showEventPopup && (
           <div className="absolute inset-0 flex items-center justify-center z-[99999]">
             <VisualNovel
-              startingLineChainNode={script_test}
-              allCharacters={characters_test}
-              bgImagePath={bg_test}
+              startingLineChainNode={null}
+              roleMap={roleMap}
+              bgImagePath={bg}
             />
           </div>
         )}

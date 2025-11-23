@@ -1,105 +1,125 @@
-// dependencies
-import { useEffect, useState } from 'react';
+// visual_novel.tsx
+
+import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 
-// components
 import DialogueBox from './visual_novel/dialogue_box';
 import Portrait from './visual_novel/portrait';
-import { getCharacter } from './visual_novel/get_character';
 
-// types
-import type {
-  Line,
-  LineChainNode,
-  ChoiceNode,
-  SplitNode,
-  Node,
-  Character,
-} from './visual_novel/master_types';
+import type { Character } from './poi_generation/character_type';
+import type { LineChainNode } from './visual_novel/master_types';
 
 type CharacterRecency = {
-  char: Character;
+  roleId: string;
   clicksago: number;
 };
 
 type VisualNovelProps = {
-  startingLineChainNode: LineChainNode;
+  startingLineChainNode: LineChainNode | null;
+  roleMap: Record<string, Character>;
   bgImagePath: string;
-  allCharacters: Character[];
 };
 
-// game
-function VisualNovel({
+// -----------------------------------------------------
+// VISUAL NOVEL COMPONENT
+// -----------------------------------------------------
+
+export default function VisualNovel({
   startingLineChainNode,
+  roleMap,
   bgImagePath,
-  allCharacters,
 }: VisualNovelProps) {
-  const [lineChainNode, setLineChainNode] = useState<LineChainNode>(
+  // null check — prevents crash if VN opened before event fetched
+  if (!startingLineChainNode) {
+    return (
+      <div className="bg-white rounded-xl shadow-xl p-4 w-[600px] h-[400px] flex items-center justify-center">
+        <p>No event loaded.</p>
+      </div>
+    );
+  }
+
+  const [currentNode, setCurrentNode] = useState<LineChainNode>(
     startingLineChainNode
   );
-  const [index, setIndex] = useState<number>(0);
-  const [characters, setCharacters] = useState<Character[]>(allCharacters);
-  const [characterRecencies, setCharacterRecencies] = useState<
-    CharacterRecency[]
-  >([]);
-  const [visiblePortraits, setVisiblePortraits] = useState<Character[]>([]);
+  const [lineIndex, setLineIndex] = useState<number>(0);
 
-  const advance = () => {
-    const currentIndex = index;
+  // recency + visibility tracking via role IDs
+  const [recencies, setRecencies] = useState<CharacterRecency[]>([]);
+  const [visibleRoles, setVisibleRoles] = useState<string[]>([]);
 
-    if (currentIndex < lineChainNode.lines.length) {
-      const nextIndex = currentIndex + 1; // local, reliable, synchronous
-      const nextLine = lineChainNode.lines[nextIndex];
-      const speakerId = nextLine?.speakerId;
+  const currentLine = currentNode.lines[lineIndex];
+  const currentRoleId = currentLine.role.id;
+  const currentChar = roleMap[currentRoleId];
 
-      // determine the character for THIS upcoming line
-      const char = getCharacter(characters, speakerId);
+  // -----------------------------------------------------
+  // ADVANCE FUNCTION
+  // -----------------------------------------------------
+  function advance() {
+    const nextIndex = lineIndex + 1;
+    const roleId = currentLine.role.id;
 
-      // update recencies
-      let alreadyExists = false;
-      const updatedRecencies = characterRecencies.map((entry) => {
-        if (entry.char.id === speakerId) {
-          alreadyExists = true;
-          return { ...entry, clicksago: 0 };
-        }
-        return { ...entry, clicksago: entry.clicksago + 1 };
-      });
+    // ---------------------------------------
+    // 1. UPDATE RECENCIES (pure)
+    // ---------------------------------------
+    const updatedRecencies = (() => {
+      const existed = recencies.some((r) => r.roleId === roleId);
 
-      if (!alreadyExists) {
-        updatedRecencies.push({ char, clicksago: 0 });
+      const base = recencies.map((r) =>
+        r.roleId === roleId
+          ? { ...r, clicksago: 0 }
+          : { ...r, clicksago: r.clicksago + 1 }
+      );
+
+      if (!existed) {
+        base.push({ roleId, clicksago: 0 });
       }
 
-      // update portraits based on the *new* speaker we just looked up
-      let updatedVisiblePortraits = [...visiblePortraits];
+      return base;
+    })();
 
-      if (!updatedVisiblePortraits.some((p) => p.id === char.id)) {
-        if (updatedVisiblePortraits.length < 2) {
-          updatedVisiblePortraits.push(char);
-        } else {
-          const getClicks = (id: string) =>
-            updatedRecencies.find((r) => r.char.id === id)?.clicksago ?? 999;
-
-          const [left, right] = updatedVisiblePortraits;
-          const replaceLeft = getClicks(left.id) > getClicks(right.id);
-
-          if (replaceLeft) {
-            updatedVisiblePortraits[0] = char;
-          } else {
-            updatedVisiblePortraits[1] = char;
-          }
-        }
+    // ---------------------------------------
+    // 2. UPDATE VISIBLE PORTRAITS (pure)
+    // ---------------------------------------
+    const updatedVisibleRoles = (() => {
+      // already visible? keep as-is
+      if (visibleRoles.includes(roleId)) {
+        return visibleRoles;
       }
 
-      // now safely commit the state updates
-      setIndex(nextIndex);
-      setCharacterRecencies(updatedRecencies);
-      setVisiblePortraits(updatedVisiblePortraits);
+      // space available? add
+      if (visibleRoles.length < 2) {
+        return [...visibleRoles, roleId];
+      }
 
+      // otherwise: evict the least recent
+      const worst = updatedRecencies.reduce((a, b) =>
+        a.clicksago > b.clicksago ? a : b
+      ).roleId;
+
+      return visibleRoles.map((r) => (r === worst ? roleId : r));
+    })();
+
+    // ---------------------------------------
+    // 3. COMMIT STATE ONCE FOR EACH
+    // ---------------------------------------
+    setRecencies(updatedRecencies);
+    setVisibleRoles(updatedVisibleRoles);
+
+    // ---------------------------------------
+    // 4. ADVANCE LINE OR FINISH
+    // ---------------------------------------
+    if (nextIndex < currentNode.lines.length) {
+      setLineIndex(nextIndex);
       return;
     }
 
-    // handle end of chain
-  };
+    // TODO: next node traversal
+    console.warn('Reached end of chain node.');
+  }
+
+  // -----------------------------------------------------
+  // RENDER
+  // -----------------------------------------------------
 
   return (
     <div
@@ -107,39 +127,41 @@ function VisualNovel({
       style={{ backgroundImage: `url(${bgImagePath})` }}
     >
       <div className="relative w-full h-full">
+        {/* PORTRAITS */}
         <AnimatePresence>
-          {visiblePortraits.map((char, i) => (
-            <Portrait
-              key={char.id}
-              spritePath={char.portrait}
-              className={
-                i === 0
-                  ? `
-      bottom-0
-      left-1/2 -translate-x-1/2
-      -ml-[20vw] sm:-ml-[15vw] md:-ml-[12vw] lg:-ml-[10vw]
-    `
-                  : `
-      bottom-0
-      left-1/2 -translate-x-1/2
-      ml-[20vw] sm:ml-[15vw] md:ml-[12vw] lg:ml-[10vw]
-    `
-              }
-              active={char.id === lineChainNode?.lines[index]?.speakerId}
-            />
-          ))}
+          {visibleRoles.map((roleId, i) => {
+            const char = roleMap[roleId];
+
+            return (
+              <Portrait
+                key={roleId}
+                spritePath={char.portrait}
+                className={
+                  i === 0
+                    ? `
+                      bottom-0
+                      left-1/2 -translate-x-1/2
+                      -ml-[20vw] sm:-ml-[15vw] md:-ml-[12vw] lg:-ml-[10vw]
+                    `
+                    : `
+                      bottom-0
+                      left-1/2 -translate-x-1/2
+                      ml-[20vw] sm:ml-[15vw] md:ml-[12vw] lg:ml-[10vw]
+                    `
+                }
+                active={roleId === currentRoleId}
+              />
+            );
+          })}
         </AnimatePresence>
+
+        {/* DIALOGUE BOX */}
         <DialogueBox
-          name={
-            getCharacter(characters, lineChainNode?.lines[index]?.speakerId)
-              .name
-          }
-          text={lineChainNode.lines[index]?.text || '...'}
+          name={currentChar?.name ?? ''}
+          text={currentLine.text}
           onContinue={advance}
         />
       </div>
     </div>
   );
 }
-
-export default VisualNovel;
