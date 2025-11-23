@@ -23,7 +23,7 @@ export default function Portrait({
         ? 'scale-105 md:scale-110 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]'
         : 'opacity-80'
     }
-    max-h-80 bottom-5
+    h-40 bottom-30
   `}
       initial={{ opacity: 0, y: 20 }}
       animate={{

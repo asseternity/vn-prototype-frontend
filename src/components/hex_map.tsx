@@ -5,6 +5,7 @@ import { HexGrid, Layout } from 'react-hexgrid';
 import { Button } from '@/components/ui/button';
 
 // components
+import { generatePortrait } from './portrait_generation/portrait_generator.ts';
 import { generateMap } from './hex_map/tile/map_generator';
 import TileRenderer from './hex_map/tile/tile_renderer.tsx';
 import VisualNovel from './visual_novel';
@@ -16,9 +17,9 @@ import type {
   Character,
 } from './visual_novel/master_types.ts';
 import bg_test from '/bg_test.jpg';
-import portrait_test_1 from '/portrait_test_1.png';
-import portrait_test_2 from '/portrait_test_2.png';
-import portrait_test_3 from '/portrait_test_3.png';
+const portrait_test_1 = generatePortrait(`portrait_test_1`);
+const portrait_test_2 = generatePortrait(`portrait_test_2`);
+const portrait_test_3 = generatePortrait(`portrait_test_3`);
 const lines_test: Line[] = [
   { speakerId: 'narrator', text: 'Something something.' },
   { speakerId: 'johnny', text: 'Hello 1' },
@@ -26,11 +27,14 @@ const lines_test: Line[] = [
   { speakerId: 'mark', text: 'Hello 3' },
   { speakerId: 'johnny', text: 'Hello 4' },
 ];
-const characters_test: Character[] = [
-  { id: 'johnny', name: 'Johnny', portrait: portrait_test_2 },
-  { id: 'anne', name: 'Anne', portrait: portrait_test_1 },
-  { id: 'mark', name: 'Lil Marco', portrait: portrait_test_3 },
-];
+let characters_test: Character[] = [];
+if (portrait_test_1 && portrait_test_2 && portrait_test_3) {
+  characters_test = [
+    { id: 'johnny', name: 'Johnny', portrait: portrait_test_1 },
+    { id: 'anne', name: 'Anne', portrait: portrait_test_2 },
+    { id: 'mark', name: 'Lil Marco', portrait: portrait_test_3 },
+  ];
+}
 const script_test: LineChainNode = {
   id: '0',
   type: 'line',

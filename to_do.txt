@@ -74,13 +74,14 @@ frontend:
 [v] clone dnd witch repo locally
 [v] install c# and make a new dnd witch thing to brush up on c#
 [v] rework the nation generation to be more of a coherent story --- and to be usable in this game!
-[_] use the bot to:
-- transform castles/temples into procedurally generated towns
-- factions: each tile can be controlled by a procedurally generated faction, this colors the tile 
-- characters objects with relationships with player and personality types and skill number and portrait path, and not just strings with names 
+[v] procedurally generated portraits
+[_] characters objects with relationships with player and personality types and skill number and portrait path, and not just strings with names 
 (this will help with Vn part)
 [_] player stats -> party (Character[]) in frontend
 [_] procedurally generated character recruitment
+[_] use the bot to:
+- transform castles/temples into procedurally generated towns
+- factions: each tile can be controlled by a procedurally generated faction, this colors the tile 
 [_] make map game ui prettier
 [_] make map game ui responsive for mobile
 
