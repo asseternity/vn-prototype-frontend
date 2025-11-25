@@ -9,6 +9,8 @@ import { generateMap } from './hex_map/tile/map_generator';
 import TileRenderer from './hex_map/tile/tile_renderer.tsx';
 import VisualNovel from './visual_novel';
 import type { Character } from './poi_generation/character_type.ts';
+import type { LineChainNode, Event } from './visual_novel/master_types.ts';
+import { fetchEventById } from './visual_novel/fetch_event.ts';
 
 // test vn
 import bg from '/bg_test.jpg';
@@ -38,15 +40,6 @@ const playerCharacter: Character = {
   wisdom: 10,
   charisma: 10,
   portrait: '',
-};
-
-const roleMap: Record<string, Character> = {
-  narrator: narratorCharacter,
-  player: playerCharacter,
-  '1': generateCharacter(),
-  '2': generateCharacter(),
-  '3': generateCharacter(),
-  '4': generateCharacter(),
 };
 
 export default function HexMap() {
@@ -82,6 +75,10 @@ export default function HexMap() {
   const [player, setPlayer] = useState<Character>(playerCharacter);
   const [party, setParty] = useState<Character[]>([]);
 
+  // visual novel state
+  const [roleMap, setRoleMap] = useState<Record<string, Character>>({});
+  const [startingNode, setStartingNode] = useState<LineChainNode | null>();
+
   // initial map generation
   useEffect(() => {
     generateMap(5, 10, 'forests').then(setMapTiles);
@@ -109,9 +106,27 @@ export default function HexMap() {
   }, [actionUsedThisTurn, selectedTileTitle]);
 
   // handler for end turn
-  const endTurn = () => {
+  const endTurn = async () => {
+    setRoleMap({});
+    setStartingNode(null);
     const fifty_fifty = Math.floor(Math.random() * 2);
     if (fifty_fifty == 0) {
+      const event: Event = await fetchEventById('test_event');
+      // TODO: cast characters logic
+      const newRoleMap: Record<string, Character> = {
+        narrator: narratorCharacter,
+        player: playerCharacter,
+        '1': generateCharacter(),
+        '2': generateCharacter(),
+        '3': generateCharacter(),
+        '4': generateCharacter(),
+      };
+      // find the first line chain node and set it in a state
+      const firstNode: LineChainNode = event.nodes_by_id[
+        'intro'
+      ] as LineChainNode;
+      setStartingNode(firstNode);
+      setRoleMap(newRoleMap);
       setShowEventPopup(true);
     }
     const currentTurn: number = turn;
@@ -209,7 +224,7 @@ export default function HexMap() {
         {showEventPopup && (
           <div className="absolute inset-0 flex items-center justify-center z-[99999]">
             <VisualNovel
-              startingLineChainNode={null}
+              startingLineChainNode={startingNode as LineChainNode}
               roleMap={roleMap}
               bgImagePath={bg}
             />

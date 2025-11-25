@@ -1,5 +1,3 @@
-// visual_novel.tsx
-
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 
@@ -56,65 +54,57 @@ export default function VisualNovel({
   // -----------------------------------------------------
   function advance() {
     const nextIndex = lineIndex + 1;
-    const roleId = currentLine.role.id;
 
-    // ---------------------------------------
+    // If this is the last line of the node
+    if (nextIndex >= currentNode.lines.length) {
+      // TODO: choices logic will go here
+      console.warn('Reached end of chain node.');
+      return;
+    }
+
+    // Grab the NEXT line, not the current one
+    const nextLine = currentNode.lines[nextIndex];
+    const nextRoleId = nextLine.role.id;
+
     // 1. UPDATE RECENCIES (pure)
-    // ---------------------------------------
     const updatedRecencies = (() => {
-      const existed = recencies.some((r) => r.roleId === roleId);
+      const existed = recencies.some((r) => r.roleId === nextRoleId);
 
       const base = recencies.map((r) =>
-        r.roleId === roleId
+        r.roleId === nextRoleId
           ? { ...r, clicksago: 0 }
           : { ...r, clicksago: r.clicksago + 1 }
       );
 
       if (!existed) {
-        base.push({ roleId, clicksago: 0 });
+        base.push({ roleId: nextRoleId, clicksago: 0 });
       }
 
       return base;
     })();
 
-    // ---------------------------------------
-    // 2. UPDATE VISIBLE PORTRAITS (pure)
-    // ---------------------------------------
+    // 2. UPDATE VISIBLE ROLES (pure)
     const updatedVisibleRoles = (() => {
-      // already visible? keep as-is
-      if (visibleRoles.includes(roleId)) {
+      if (visibleRoles.includes(nextRoleId)) {
         return visibleRoles;
       }
-
-      // space available? add
       if (visibleRoles.length < 2) {
-        return [...visibleRoles, roleId];
+        return [...visibleRoles, nextRoleId];
       }
 
-      // otherwise: evict the least recent
       const worst = updatedRecencies.reduce((a, b) =>
         a.clicksago > b.clicksago ? a : b
       ).roleId;
 
-      return visibleRoles.map((r) => (r === worst ? roleId : r));
+      return visibleRoles.map((r) => (r === worst ? nextRoleId : r));
     })();
 
-    // ---------------------------------------
-    // 3. COMMIT STATE ONCE FOR EACH
-    // ---------------------------------------
+    // 3. Commit state BEFORE updating line index
     setRecencies(updatedRecencies);
     setVisibleRoles(updatedVisibleRoles);
 
-    // ---------------------------------------
-    // 4. ADVANCE LINE OR FINISH
-    // ---------------------------------------
-    if (nextIndex < currentNode.lines.length) {
-      setLineIndex(nextIndex);
-      return;
-    }
-
-    // TODO: next node traversal
-    console.warn('Reached end of chain node.');
+    // 4. Now move to next line
+    setLineIndex(nextIndex);
   }
 
   // -----------------------------------------------------
@@ -131,6 +121,7 @@ export default function VisualNovel({
         <AnimatePresence>
           {visibleRoles.map((roleId, i) => {
             const char = roleMap[roleId];
+            if (!char) return null; // yeet the undefined one
 
             return (
               <Portrait
@@ -157,7 +148,7 @@ export default function VisualNovel({
 
         {/* DIALOGUE BOX */}
         <DialogueBox
-          name={currentChar?.name ?? ''}
+          name={currentChar.name ?? ''}
           text={currentLine.text}
           onContinue={advance}
         />
