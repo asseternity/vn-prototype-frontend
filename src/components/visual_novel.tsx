@@ -5,7 +5,7 @@ import DialogueBox from './visual_novel/dialogue_box';
 import Portrait from './visual_novel/portrait';
 
 import type { Character } from './poi_generation/character_type';
-import type { LineChainNode } from './visual_novel/master_types';
+import type { LineChainNode, Event } from './visual_novel/master_types';
 
 type CharacterRecency = {
   roleId: string;
@@ -13,7 +13,7 @@ type CharacterRecency = {
 };
 
 type VisualNovelProps = {
-  startingLineChainNode: LineChainNode | null;
+  event: Event | null;
   roleMap: Record<string, Character>;
   bgImagePath: string;
 };
@@ -23,12 +23,12 @@ type VisualNovelProps = {
 // -----------------------------------------------------
 
 export default function VisualNovel({
-  startingLineChainNode,
+  event,
   roleMap,
   bgImagePath,
 }: VisualNovelProps) {
   // null check — prevents crash if VN opened before event fetched
-  if (!startingLineChainNode) {
+  if (!event) {
     return (
       <div className="bg-white rounded-xl shadow-xl p-4 w-[600px] h-[400px] flex items-center justify-center">
         <p>No event loaded.</p>
@@ -37,7 +37,7 @@ export default function VisualNovel({
   }
 
   const [currentNode, setCurrentNode] = useState<LineChainNode>(
-    startingLineChainNode
+    event.nodes_by_id['intro'] as LineChainNode
   );
   const [lineIndex, setLineIndex] = useState<number>(0);
 
@@ -58,6 +58,12 @@ export default function VisualNovel({
     // If this is the last line of the node
     if (nextIndex >= currentNode.lines.length) {
       // TODO: choices logic will go here
+      // [_] show choices on screen if it's a choice node
+      // [_] show next line chain node when clicked
+      // [_] add choice id into player stats
+      // [_] figure out data format of "condition" on split nodes
+      // [_] check for decision id
+      // [_] check for player stats
       console.warn('Reached end of chain node.');
       return;
     }

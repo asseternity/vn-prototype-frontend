@@ -77,7 +77,7 @@ export default function HexMap() {
 
   // visual novel state
   const [roleMap, setRoleMap] = useState<Record<string, Character>>({});
-  const [startingNode, setStartingNode] = useState<LineChainNode | null>();
+  const [currentEvent, setCurrentEvent] = useState<Event | null>();
 
   // initial map generation
   useEffect(() => {
@@ -108,7 +108,7 @@ export default function HexMap() {
   // handler for end turn
   const endTurn = async () => {
     setRoleMap({});
-    setStartingNode(null);
+    setCurrentEvent(null);
     const fifty_fifty = Math.floor(Math.random() * 2);
     if (fifty_fifty == 0) {
       const event: Event = await fetchEventById('test_event');
@@ -125,7 +125,7 @@ export default function HexMap() {
       const firstNode: LineChainNode = event.nodes_by_id[
         'intro'
       ] as LineChainNode;
-      setStartingNode(firstNode);
+      setCurrentEvent(event);
       setRoleMap(newRoleMap);
       setShowEventPopup(true);
     }
@@ -224,7 +224,7 @@ export default function HexMap() {
         {showEventPopup && (
           <div className="absolute inset-0 flex items-center justify-center z-[99999]">
             <VisualNovel
-              startingLineChainNode={startingNode as LineChainNode}
+              event={currentEvent as Event}
               roleMap={roleMap}
               bgImagePath={bg}
             />
