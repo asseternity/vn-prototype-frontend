@@ -1,11 +1,18 @@
 import { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { Button } from './ui/button';
 
 import DialogueBox from './visual_novel/dialogue_box';
 import Portrait from './visual_novel/portrait';
 
 import type { Character } from './poi_generation/character_type';
-import type { LineChainNode, Event } from './visual_novel/master_types';
+import type {
+  LineChainNode,
+  Event,
+  ChoiceNode,
+  SplitNode,
+  ChoiceOption,
+} from './visual_novel/master_types';
 
 type CharacterRecency = {
   roleId: string;
@@ -40,6 +47,7 @@ export default function VisualNovel({
     event.nodes_by_id['intro'] as LineChainNode
   );
   const [lineIndex, setLineIndex] = useState<number>(0);
+  const [choiceOptions, setChoiceOptions] = useState<ChoiceOption[]>([]);
 
   // recency + visibility tracking via role IDs
   const [recencies, setRecencies] = useState<CharacterRecency[]>([]);
@@ -58,18 +66,42 @@ export default function VisualNovel({
     // If this is the last line of the node
     if (nextIndex >= currentNode.lines.length) {
       // TODO: choices logic will go here
-      // [_] show choices on screen if it's a choice node
-      // [_] show next line chain node when clicked
-      // [_] add choice id into player stats
-      // [_] figure out data format of "condition" on split nodes
-      // [_] check for decision id
-      // [_] check for player stats
-      console.warn('Reached end of chain node.');
-      return;
+      if (currentNode.endingNodeId) {
+        // [v] find the next node and its type
+        const next_node_id: string = currentNode.endingNodeId;
+        const next_node = event?.nodes_by_id[next_node_id];
+        if (!next_node) {
+          console.warn('Ending node not found by id.');
+          return;
+        }
+        switch (next_node.type) {
+          case 'choice':
+            // [v] show choices on screen if it's a choice node
+            setChoiceOptions(next_node.choices);
+            break;
+          case 'split':
+            // [_] figure out data format of "condition" on split nodes
+            setChoiceOptions([]);
+            // [_] check for decision id
+            // [_] check for player stats
+            break;
+          case 'line':
+            setChoiceOptions([]);
+            break;
+          default:
+            setChoiceOptions([]);
+            console.warn('Unknown type of ending node.');
+            return;
+        }
+      }
     }
 
     // Grab the NEXT line, not the current one
     const nextLine = currentNode.lines[nextIndex];
+    if (!nextLine) {
+      console.warn('No next line found in node.');
+      return;
+    }
     const nextRoleId = nextLine.role.id;
 
     // 1. UPDATE RECENCIES (pure)
@@ -111,6 +143,25 @@ export default function VisualNovel({
 
     // 4. Now move to next line
     setLineIndex(nextIndex);
+  }
+
+  // -----------------------------------------------------
+  // HANDLE CLICKED CHOICE FUNCTION
+  // -----------------------------------------------------
+  function handleClickChoice(choiceOption: ChoiceOption) {
+    // [v] find next chain node by id
+    const next_node_id: string = choiceOption.node_id;
+    const next_node = event?.nodes_by_id[next_node_id] as LineChainNode;
+    if (!next_node) {
+      console.warn("ChoiceOption's node not found.");
+      return;
+    }
+    // [v] show next line chain node when clicked
+    setCurrentNode(next_node);
+    setLineIndex(0);
+    setChoiceOptions([]);
+    // [_] add choice id into player stats
+    // [_] apply stat changes
   }
 
   // -----------------------------------------------------
@@ -158,6 +209,20 @@ export default function VisualNovel({
           text={currentLine.text}
           onContinue={advance}
         />
+
+        <div>
+          {lineIndex + 1 >= currentNode.lines.length && (
+            <div>
+              {choiceOptions.map((c) => {
+                return (
+                  <Button key={c.id} onClick={() => handleClickChoice(c)}>
+                    {c.text}
+                  </Button>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
