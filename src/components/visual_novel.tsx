@@ -160,6 +160,7 @@ export default function VisualNovel({
     setCurrentNode(next_node);
     setLineIndex(0);
     setChoiceOptions([]);
+    // [_] place choice buttons prettily
     // [_] add choice id into player stats
     // [_] apply stat changes
   }
